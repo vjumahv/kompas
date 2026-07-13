@@ -223,26 +223,28 @@ export default function Kompas() {
 
   function flash(msg) { setToast(msg); setTimeout(() => setToast(null), 3000); }
 
+  // el nombre y la comunidad pueden no existir todavía (login/lobby aún no
+  // completados); calculamos `me` de forma segura para poder llamar los
+  // hooks de abajo siempre en el mismo orden, sin returns tempranos antes.
+  const me = state?.members.find((m) => m.name === user?.name);
+
+  // aviso de promoción de nivel
+  useEffect(() => {
+    if (!me?.justPromoted) return;
+    flash(`🎉 ¡Subiste a nivel ${me.justPromoted}! Sigue así.`);
+    (async () => {
+      const fresh = await sget(`comm:${comm}:data`);
+      if (fresh) {
+        const m = fresh.members.find((x) => x.name === user.name);
+        if (m) { delete m.justPromoted; await sset(`comm:${comm}:data`, fresh); }
+      }
+    })();
+  }, [me?.justPromoted]);
+
   if (!supabaseConfigured) return <SupabaseSetupNeeded />;
   if (loading) return <div style={{ ...S.page, display: "grid", placeItems: "center" }}>Cargando…</div>;
   if (!user) return <Auth onDone={(u) => setUser(u)} flash={flash} toast={toast} />;
   if (!state) return <Lobby user={user} onEnter={(code, data) => { setComm(code); setState(data); setWelcome(true); }} flash={flash} toast={toast} />;
-
-  const me = state.members.find((m) => m.name === user.name);
-
-  // aviso de promoción de nivel
-  useEffect(() => {
-    if (me?.justPromoted) {
-      flash(`🎉 ¡Subiste a nivel ${me.justPromoted}! Sigue así.`);
-      (async () => {
-        const fresh = await sget(`comm:${comm}:data`);
-        if (fresh) {
-          const m = fresh.members.find((x) => x.name === user.name);
-          if (m) { delete m.justPromoted; await sset(`comm:${comm}:data`, fresh); }
-        }
-      })();
-    }
-  }, [me?.justPromoted]);
 
   if (welcome && me) return <Welcome me={me} onClose={() => setWelcome(false)} />;
 
