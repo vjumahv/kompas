@@ -100,6 +100,16 @@ async function sset(key, val) {
   return true;
 }
 
+// busca en qué comunidades ya es miembro esta persona (para dispositivos/navegadores
+// nuevos que no tienen la sesión guardada localmente, y así no depender del código)
+async function findMyCommunities(name) {
+  const { data, error } = await supabase.from("kv_store").select("key,value").like("key", "comm:%:data");
+  if (error) { console.error("find communities", error); return []; }
+  return (data || [])
+    .filter((row) => row.value?.members?.some((m) => m.name === name))
+    .map((row) => ({ code: row.key.split(":")[1], name: row.value.name }));
+}
+
 // ---------- sesión persistida (recordar usuario y comunidad en este navegador) ----------
 const SESSION_KEY = "kompas:session";
 function saveSession(user, commCode) {
@@ -213,6 +223,7 @@ export default function Kompas() {
   const [tab, setTab] = useState("hoy");
   const [toast, setToast] = useState(null);
   const [welcome, setWelcome] = useState(false);
+  const [myCommunities, setMyCommunities] = useState([]);
   const today = bogotaToday();
 
   // restaurar sesión guardada en este navegador (usuario + comunidad)
@@ -237,6 +248,14 @@ export default function Kompas() {
     setState(null);
     setTab("hoy");
   }
+
+  // si no hay comunidad activa (p. ej. dispositivo/navegador nuevo sin sesión
+  // guardada), busca en qué comunidades ya es miembro esta persona para no
+  // depender de que recuerde el código de invitación
+  useEffect(() => {
+    if (!user || comm) { setMyCommunities([]); return; }
+    (async () => setMyCommunities(await findMyCommunities(user.name)))();
+  }, [user, comm]);
 
   // refrescar comunidad
   async function refresh(code = comm) {
@@ -277,7 +296,15 @@ export default function Kompas() {
   if (!supabaseConfigured) return <SupabaseSetupNeeded />;
   if (loading) return <div style={{ ...S.page, display: "grid", placeItems: "center" }}>Cargando…</div>;
   if (!user) return <Auth onDone={(u) => setUser(u)} flash={flash} toast={toast} />;
-  if (!state) return <Lobby user={user} onEnter={(code, data) => { setComm(code); setState(data); setWelcome(true); }} flash={flash} toast={toast} />;
+  if (!state) return (
+    <Lobby
+      user={user}
+      myCommunities={myCommunities}
+      onEnter={(code, data, showWelcome = true) => { setComm(code); setState(data); if (showWelcome) setWelcome(true); }}
+      flash={flash}
+      toast={toast}
+    />
+  );
 
   if (welcome && me) return <Welcome me={me} onClose={() => setWelcome(false)} />;
 
@@ -414,12 +441,21 @@ function makeCode() {
   const a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   return Array.from({ length: 6 }, () => a[Math.floor(Math.random() * a.length)]).join("");
 }
-function Lobby({ user, onEnter, flash, toast }) {
+function Lobby({ user, myCommunities, onEnter, flash, toast }) {
   const [joinCode, setJoinCode] = useState("");
   const [commName, setCommName] = useState("");
+  const [entering, setEntering] = useState(null);
 
   function newMember() {
     return { name: user.name, joined: bogotaToday(), tier: user.startTier ?? 0, weeksAtTier: 0, badges: [], extras: {}, lastWeekChecked: null };
+  }
+
+  async function enterExisting(code) {
+    setEntering(code);
+    const data = await sget(`comm:${code}:data`);
+    setEntering(null);
+    if (!data) return flash("Esa comunidad ya no existe.");
+    onEnter(code, data, false);
   }
 
   async function create() {
@@ -451,6 +487,19 @@ function Lobby({ user, onEnter, flash, toast }) {
       <div style={{ maxWidth: 420, margin: "0 auto" }}>
         <h2 style={{ fontSize: 26, marginBottom: 4 }}>Hola, {user.name} 👋</h2>
         <p style={{ color: C.sub, marginTop: 0 }}>Únete a una comunidad o crea la tuya.</p>
+
+        {myCommunities.length > 0 && (
+          <div style={{ ...S.card, display: "grid", gap: 10, marginBottom: 16 }}>
+            <div style={S.eyebrow}>{myCommunities.length > 1 ? "Ya perteneces a estas comunidades" : "Ya perteneces a esta comunidad"}</div>
+            {myCommunities.map((c) => (
+              <button key={c.code} onClick={() => enterExisting(c.code)} disabled={entering === c.code}
+                style={{ background: C.soft, border: "none", borderRadius: 12, padding: "12px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
+                <span style={{ fontWeight: 700, color: C.ink }}>{c.name}</span>
+                <span style={{ color: C.moss, fontSize: 13, fontWeight: 700 }}>{entering === c.code ? "Entrando…" : "Entrar →"}</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         <div style={{ ...S.card, display: "grid", gap: 12, marginBottom: 16 }}>
           <div style={S.eyebrow}>Unirme a una comunidad</div>
