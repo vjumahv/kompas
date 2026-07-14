@@ -1057,13 +1057,19 @@ function TabComunidad({ state, comm, logout }) {
   const [tipIdx] = useState(() => dayIndexFrom(bogotaToday()) % TIPS.length);
   const wk = isoWeekKey(bogotaToday());
   const entries = state.entries || {};
-  const weekBoard = state.members
-    .map((m) => {
-      const daily = Object.keys(entries).filter((d) => isoWeekKey(d) === wk && entries[d]?.[m.name]?.done).length;
-      const extras = m.extras?.[wk] || 0;
-      return { name: m.name, tier: m.tier, score: daily + extras, daily, extras };
-    })
-    .sort((a, b) => b.score - a.score);
+  const memberScores = state.members.map((m) => {
+    const daily = Object.keys(entries).filter((d) => isoWeekKey(d) === wk && entries[d]?.[m.name]?.done).length;
+    const extras = m.extras?.[wk] || 0;
+    return { name: m.name, tier: m.tier, score: daily + extras, daily, extras };
+  });
+  // separado por nivel: no tiene sentido comparar a alguien en Semilla contra alguien en Creador constante
+  const boardByTier = TIERS
+    .map((t, tierIdx) => ({
+      tier: t,
+      tierIdx,
+      members: memberScores.filter((m) => m.tier === tierIdx).sort((a, b) => b.score - a.score),
+    }))
+    .filter((g) => g.members.length > 0);
   return (
     <div style={{ padding: "8px 16px", display: "grid", gap: 16 }}>
       <h2 style={{ margin: "4px 0", fontSize: 22 }}>{state.name}</h2>
@@ -1082,15 +1088,21 @@ function TabComunidad({ state, comm, logout }) {
       <div style={S.darkCard}>
         <div style={{ ...S.eyebrow, color: C.sage }}>Leaderboard de la semana</div>
         <div style={{ fontSize: 13, color: "#cfe0ee", marginTop: 6 }}>
-          Quién cumple más esta semana (retos diarios + extras). Se reinicia cada lunes.
+          Quién cumple más esta semana (retos diarios + extras), por nivel. Se reinicia cada lunes.
         </div>
-        <div style={{ marginTop: 14 }}>
-          {weekBoard.map((m, i) => (
-            <div key={m.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < weekBoard.length - 1 ? "1px solid rgba(255,255,255,.12)" : "none" }}>
-              <span style={{ fontSize: 17, width: 26 }}>{i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`}</span>
-              <span style={{ flex: 1, fontWeight: i < 3 ? 800 : 500 }}>{m.name}{m.name === state.admin ? " 👑" : ""}</span>
-              <span style={{ fontSize: 13, color: "#c3d8e8" }}>{TIERS[m.tier].emoji}</span>
-              <span style={{ fontWeight: 800, color: C.sun, minWidth: 34, textAlign: "right" }}>{m.score}</span>
+        <div style={{ marginTop: 14, display: "grid", gap: 18 }}>
+          {boardByTier.map((g) => (
+            <div key={g.tierIdx}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#cfe0ee", marginBottom: 6 }}>
+                {g.tier.emoji} {g.tier.name}
+              </div>
+              {g.members.map((m, i) => (
+                <div key={m.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < g.members.length - 1 ? "1px solid rgba(255,255,255,.12)" : "none" }}>
+                  <span style={{ fontSize: 17, width: 26 }}>{i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`}</span>
+                  <span style={{ flex: 1, fontWeight: i < 3 ? 800 : 500 }}>{m.name}{m.name === state.admin ? " 👑" : ""}</span>
+                  <span style={{ fontWeight: 800, color: C.sun, minWidth: 34, textAlign: "right" }}>{m.score}</span>
+                </div>
+              ))}
             </div>
           ))}
         </div>
