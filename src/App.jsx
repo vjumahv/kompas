@@ -82,9 +82,9 @@ function challengeForDate(dateStr) {
 
 // ---------- niveles ----------
 const TIERS = [
-  { key: "semilla", name: "Semilla", emoji: "🌱", goal: "Cumplir el reto diario", dailyDays: 5, extra: 0 },
-  { key: "brote", name: "Brote", emoji: "🌿", goal: "Reto diario + 3 posts o stories extra", dailyDays: 5, extra: 3 },
-  { key: "crecimiento", name: "Creador en crecimiento", emoji: "🌳", goal: "Reto diario + 5 posts o stories extra", dailyDays: 6, extra: 5 },
+  { key: "semilla", name: "Semilla", emoji: "🌱", goal: "Cumplir el reto diario", dailyDays: 7, extra: 0 },
+  { key: "brote", name: "Brote", emoji: "🌿", goal: "Reto diario + 3 posts o stories extra", dailyDays: 7, extra: 3 },
+  { key: "crecimiento", name: "Creador en crecimiento", emoji: "🌳", goal: "Reto diario + 5 posts o stories extra", dailyDays: 7, extra: 5 },
   { key: "constante", name: "Creador constante", emoji: "⭐", goal: "Reto diario + 7 extra + interactuar con tu comunidad", dailyDays: 7, extra: 7 },
 ];
 
@@ -98,6 +98,19 @@ async function sset(key, val) {
   const { error } = await supabase.from("kv_store").upsert({ key, value: val, updated_at: new Date().toISOString() });
   if (error) { console.error("storage set", error); return false; }
   return true;
+}
+
+// ---------- sesión persistida (recordar usuario y comunidad en este navegador) ----------
+const SESSION_KEY = "kompas:session";
+function saveSession(user, commCode) {
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify({ user, commCode })); } catch {}
+}
+function loadSession() {
+  try { const raw = localStorage.getItem(SESSION_KEY); return raw ? JSON.parse(raw) : null; }
+  catch { return null; }
+}
+function clearSession() {
+  try { localStorage.removeItem(SESSION_KEY); } catch {}
 }
 
 // ---------- hash de PIN (no guardamos el PIN en texto plano) ----------
@@ -202,8 +215,28 @@ export default function Kompas() {
   const [welcome, setWelcome] = useState(false);
   const today = bogotaToday();
 
-  // restaurar sesión ligera desde state en memoria (sin localStorage)
-  useEffect(() => { setLoading(false); }, []);
+  // restaurar sesión guardada en este navegador (usuario + comunidad)
+  useEffect(() => {
+    const session = loadSession();
+    if (session?.user) {
+      setUser(session.user);
+      if (session.commCode) setComm(session.commCode);
+    }
+    setLoading(false);
+  }, []);
+
+  // guardar sesión cada vez que cambie el usuario o la comunidad activa
+  useEffect(() => {
+    if (user) saveSession(user, comm);
+  }, [user, comm]);
+
+  function logout() {
+    clearSession();
+    setUser(null);
+    setComm(null);
+    setState(null);
+    setTab("hoy");
+  }
 
   // refrescar comunidad
   async function refresh(code = comm) {
@@ -256,7 +289,7 @@ export default function Kompas() {
         {tab === "feed" && <TabFeed {...{ state, setState, user, comm, refresh, flash }} />}
         {tab === "progreso" && <TabProgreso {...{ state, me, today }} />}
         {tab === "logros" && <TabLogros {...{ state, me }} />}
-        {tab === "comunidad" && <TabComunidad {...{ state, comm }} />}
+        {tab === "comunidad" && <TabComunidad {...{ state, comm, logout }} />}
       </div>
       <Nav tab={tab} setTab={setTab} />
       {toast && <Toast msg={toast} />}
@@ -1020,7 +1053,7 @@ const TIPS = [
   "Reutiliza: un reel puede volverse story, carrusel y post.",
   "Las primeras publicaciones son práctica, no examen. Nadie te está juzgando tanto como crees.",
 ];
-function TabComunidad({ state, comm }) {
+function TabComunidad({ state, comm, logout }) {
   const [tipIdx] = useState(() => dayIndexFrom(bogotaToday()) % TIPS.length);
   const wk = isoWeekKey(bogotaToday());
   const entries = state.entries || {};
@@ -1080,6 +1113,8 @@ function TabComunidad({ state, comm }) {
           <div key={i} style={{ fontSize: 14, padding: "7px 0", borderBottom: i < TIPS.length - 1 ? `1px solid ${C.line}` : "none", color: C.sub }}>· {t}</div>
         ))}
       </div>
+
+      <button style={{ ...S.btnGhost, width: "100%" }} onClick={logout}>Cerrar sesión</button>
     </div>
   );
 }
