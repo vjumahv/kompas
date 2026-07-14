@@ -142,7 +142,7 @@ function isValidUrl(str) {
 
 // ---------- confeti ligero ----------
 function burstConfetti() {
-  const colors = ["#4c7a4a", "#a8c686", "#f2c14e", "#e07a5f", "#84a98c"];
+  const colors = ["#2f6690", "#6f9fc4", "#f2c14e", "#9fc1de", "#1f3c54"];
   const n = 40;
   for (let i = 0; i < n; i++) {
     const el = document.createElement("div");
@@ -164,25 +164,25 @@ function burstConfetti() {
 //  ESTILOS (base clara salvia/marfil + acentos verde bosque)
 // ============================================================
 const C = {
-  bg: "#f3f5ee",
+  bg: "#eef3f8",
   card: "#ffffff",
-  ink: "#22301f",
-  sub: "#5c6b57",
-  line: "#e2e7d8",
-  sage: "#84a98c",
-  moss: "#4c7a4a",
-  forest: "#22331f",
-  forest2: "#2e4429",
+  ink: "#1b2a3a",
+  sub: "#57697d",
+  line: "#dbe4ee",
+  sage: "#6f9fc4",
+  moss: "#2f6690",
+  forest: "#152436",
+  forest2: "#1f3c54",
   sun: "#f2c14e",
   clay: "#e07a5f",
-  soft: "#eef2e6",
+  soft: "#e8f0f7",
 };
 
 const S = {
   page: { minHeight: "100vh", background: C.bg, color: C.ink, fontFamily: "'Inter',system-ui,sans-serif" },
   wrap: { maxWidth: 480, margin: "0 auto", paddingBottom: 90 },
   card: { background: C.card, borderRadius: 20, border: `1px solid ${C.line}`, padding: 18 },
-  darkCard: { background: `linear-gradient(155deg,${C.forest},${C.forest2})`, color: "#eef3e6", borderRadius: 24, padding: 22 },
+  darkCard: { background: `linear-gradient(155deg,${C.forest},${C.forest2})`, color: "#eaf2fa", borderRadius: 24, padding: 22 },
   btn: { background: C.moss, color: "#fff", border: "none", borderRadius: 14, padding: "13px 18px", fontWeight: 700, fontSize: 15, cursor: "pointer", width: "100%" },
   btnGhost: { background: C.soft, color: C.moss, border: "none", borderRadius: 14, padding: "12px 16px", fontWeight: 700, cursor: "pointer" },
   input: { width: "100%", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.line}`, fontSize: 15, background: "#fff", boxSizing: "border-box", color: C.ink },
@@ -518,7 +518,7 @@ function Welcome({ me, onClose }) {
         <div style={S.darkCard}>
           <div style={{ ...S.eyebrow, color: C.sage }}>Tu meta en este nivel</div>
           <div style={{ fontSize: 17, fontWeight: 700, marginTop: 8, lineHeight: 1.4 }}>{tier.goal}</div>
-          <div style={{ fontSize: 14, color: "#d9e6cf", marginTop: 10 }}>
+          <div style={{ fontSize: 14, color: "#cfe0ee", marginTop: 10 }}>
             Cumple el reto del día para avanzar. Las stories e interacción las marcas tú y también suman.
           </div>
         </div>
@@ -566,7 +566,7 @@ function Header({ state, me }) {
         <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>🧭 Kompas</div>
         <div style={{ fontSize: 13, color: C.sub }}>{state.name}</div>
       </div>
-      <div style={{ background: C.forest, color: "#eef3e6", padding: "6px 12px", borderRadius: 999, fontSize: 13, fontWeight: 700 }}>
+      <div style={{ background: C.forest, color: "#eaf2fa", padding: "6px 12px", borderRadius: 999, fontSize: 13, fontWeight: 700 }}>
         {tier.emoji} {tier.name}
       </div>
     </div>
@@ -665,7 +665,7 @@ function TabHoy({ state, setState, user, comm, today, refresh, flash }) {
         <div style={{ ...S.eyebrow, color: C.sage }}>Reto de hoy · {prettyDate(today)}</div>
         <div style={{ fontSize: 40, margin: "10px 0 4px" }}>{ch.icon}</div>
         <div style={{ fontSize: 21, fontWeight: 800, lineHeight: 1.25 }}>{ch.text}</div>
-        <div style={{ marginTop: 12, background: "rgba(255,255,255,.09)", padding: "10px 12px", borderRadius: 12, fontSize: 14, color: "#d9e6cf" }}>
+        <div style={{ marginTop: 12, background: "rgba(255,255,255,.09)", padding: "10px 12px", borderRadius: 12, fontSize: 14, color: "#cfe0ee" }}>
           💡 {ch.tip}
         </div>
       </div>
@@ -852,9 +852,9 @@ function TabProgreso({ state, me, today }) {
       <div style={S.darkCard}>
         <div style={{ ...S.eyebrow, color: C.sage }}>Tu nivel</div>
         <div style={{ fontSize: 30, marginTop: 6 }}>{tier.emoji} <b>{tier.name}</b></div>
-        <div style={{ fontSize: 14, color: "#d9e6cf", marginTop: 4 }}>Meta de la semana: {tier.goal}</div>
+        <div style={{ fontSize: 14, color: "#cfe0ee", marginTop: 4 }}>Meta de la semana: {tier.goal}</div>
         <div style={{ marginTop: 14 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4, color: "#d9e6cf" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4, color: "#cfe0ee" }}>
             <span>Reto diario</span><span>{stats.weekDaily}/{tier.dailyDays} días</span>
           </div>
           <div style={{ height: 10, background: "rgba(255,255,255,.15)", borderRadius: 999, overflow: "hidden" }}>
@@ -863,7 +863,7 @@ function TabProgreso({ state, me, today }) {
         </div>
         {tier.extra > 0 && (
           <div style={{ marginTop: 10 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4, color: "#d9e6cf" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4, color: "#cfe0ee" }}>
               <span>Posts/stories extra</span><span>{stats.weekExtras}/{tier.extra}</span>
             </div>
             <div style={{ height: 10, background: "rgba(255,255,255,.15)", borderRadius: 999, overflow: "hidden" }}>
@@ -872,12 +872,12 @@ function TabProgreso({ state, me, today }) {
           </div>
         )}
         {nextTier
-          ? <div style={{ fontSize: 13, color: "#d9e6cf", marginTop: 12 }}>
+          ? <div style={{ fontSize: 13, color: "#cfe0ee", marginTop: 12 }}>
               {stats.metGoal
                 ? `✅ ¡Meta cumplida! El lunes subes a ${nextTier.emoji} ${nextTier.name}.`
                 : `Cumple la meta esta semana para subir a ${nextTier.emoji} ${nextTier.name}. Si no llegas, sigues en ${tier.name} sin bajar.`}
             </div>
-          : <div style={{ fontSize: 13, color: "#d9e6cf", marginTop: 12 }}>Estás en el nivel más alto. ¡Eres ejemplo de constancia! ⭐</div>}
+          : <div style={{ fontSize: 13, color: "#cfe0ee", marginTop: 12 }}>Estás en el nivel más alto. ¡Eres ejemplo de constancia! ⭐</div>}
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -977,13 +977,13 @@ function TabLogros({ state, me }) {
     canvas.width = 600; canvas.height = 600;
     const ctx = canvas.getContext("2d");
     const g = ctx.createLinearGradient(0, 0, 600, 600);
-    g.addColorStop(0, "#22331f"); g.addColorStop(1, "#2e4429");
+    g.addColorStop(0, "#152436"); g.addColorStop(1, "#1f3c54");
     ctx.fillStyle = g; ctx.fillRect(0, 0, 600, 600);
     ctx.fillStyle = "#f2c14e"; ctx.font = "bold 34px sans-serif"; ctx.textAlign = "center";
     ctx.fillText("KOMPAS", 300, 90);
     ctx.font = "150px serif"; ctx.fillText(b.emoji, 300, 320);
-    ctx.fillStyle = "#eef3e6"; ctx.font = "bold 40px sans-serif"; ctx.fillText(b.name, 300, 420);
-    ctx.fillStyle = "#a8c686"; ctx.font = "22px sans-serif"; ctx.fillText(b.desc, 300, 470);
+    ctx.fillStyle = "#eaf2fa"; ctx.font = "bold 40px sans-serif"; ctx.fillText(b.name, 300, 420);
+    ctx.fillStyle = "#9fc1de"; ctx.font = "22px sans-serif"; ctx.fillText(b.desc, 300, 470);
     ctx.fillText(b.date, 300, 520);
     const url = canvas.toDataURL("image/png");
     const a = document.createElement("a"); a.href = url; a.download = `kompas-${b.id}.png`; a.click();
@@ -997,8 +997,8 @@ function TabLogros({ state, me }) {
           return (
             <div key={b.id} style={{ ...(got ? S.darkCard : S.card), padding: 16, textAlign: "center", opacity: got ? 1 : 0.55 }}>
               <div style={{ fontSize: 40, filter: got ? "none" : "grayscale(1)" }}>{b.emoji}</div>
-              <div style={{ fontWeight: 800, marginTop: 4, color: got ? "#eef3e6" : C.ink }}>{b.name}</div>
-              <div style={{ fontSize: 12, color: got ? "#c9d9bd" : C.sub, margintop: 2 }}>{b.desc}</div>
+              <div style={{ fontWeight: 800, marginTop: 4, color: got ? "#eaf2fa" : C.ink }}>{b.name}</div>
+              <div style={{ fontSize: 12, color: got ? "#c3d8e8" : C.sub, margintop: 2 }}>{b.desc}</div>
               {got && <button style={{ ...S.btnGhost, marginTop: 10, width: "100%" }} onClick={() => share(b)}>Compartir 📤</button>}
             </div>
           );
@@ -1048,7 +1048,7 @@ function TabComunidad({ state, comm }) {
 
       <div style={S.darkCard}>
         <div style={{ ...S.eyebrow, color: C.sage }}>Leaderboard de la semana</div>
-        <div style={{ fontSize: 13, color: "#d9e6cf", marginTop: 6 }}>
+        <div style={{ fontSize: 13, color: "#cfe0ee", marginTop: 6 }}>
           Quién cumple más esta semana (retos diarios + extras). Se reinicia cada lunes.
         </div>
         <div style={{ marginTop: 14 }}>
@@ -1056,7 +1056,7 @@ function TabComunidad({ state, comm }) {
             <div key={m.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < weekBoard.length - 1 ? "1px solid rgba(255,255,255,.12)" : "none" }}>
               <span style={{ fontSize: 17, width: 26 }}>{i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`}</span>
               <span style={{ flex: 1, fontWeight: i < 3 ? 800 : 500 }}>{m.name}{m.name === state.admin ? " 👑" : ""}</span>
-              <span style={{ fontSize: 13, color: "#c9d9bd" }}>{TIERS[m.tier].emoji}</span>
+              <span style={{ fontSize: 13, color: "#c3d8e8" }}>{TIERS[m.tier].emoji}</span>
               <span style={{ fontWeight: 800, color: C.sun, minWidth: 34, textAlign: "right" }}>{m.score}</span>
             </div>
           ))}
@@ -1109,7 +1109,7 @@ function Nav({ tab, setTab }) {
 }
 function Toast({ msg }) {
   return (
-    <div style={{ position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)", background: C.forest, color: "#eef3e6", padding: "12px 18px", borderRadius: 999, fontWeight: 600, fontSize: 14, zIndex: 9999, maxWidth: "90%", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,.2)" }}>
+    <div style={{ position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)", background: C.forest, color: "#eaf2fa", padding: "12px 18px", borderRadius: 999, fontWeight: 600, fontSize: 14, zIndex: 9999, maxWidth: "90%", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,.2)" }}>
       {msg}
     </div>
   );
